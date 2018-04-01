@@ -1,0 +1,69 @@
+.App {
+  /*text-align: center;*/
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+section.md-vertical-space {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
+section.lg-vertical-space {
+  margin-top: 64px;
+  margin-bottom: 64px;
+}
+
+div.custom-jumbo {
+  padding: 2em !important;
+  margin-top: 16px;
+}
+
+div.vertical-space-sm {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+div.vertical-space-md {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
+ul.nav-vertical-space {
+  margin-top: 8px;
+  margin-bottom: 32px;
+}
+
+div.algorithm h5 {
+  font-weight: bold;
+  float: left;
+  line-height: 38px;
+  margin-bottom: 0;
+}
+
+span.process-id {
+  line-height: 32px;
+  padding: 3px 12px;
+}
+
+div.chart {
+  /*min-height: 600px;*/
+}
