@@ -20,31 +20,37 @@ class FCFSVisualization extends Component {
     let runningData = [];
     let terminatedData = [];
 
+    let endTimes = [];
+
     processes.sort(sortByArrivalTime);
 
     let previousEndTime;
     let startTime;
 
     processes.forEach(process => {
+      const arrivalTime = parseInt(process.arrivalTime, 10);
+      const burstTime = parseInt(process.burstTime, 10);
       const label = `P${process.id}`;
       labels.push(label);
 
-      arrivalData.push(process.arrivalTime);
+      arrivalData.push(arrivalTime);
 
-      if (previousEndTime && previousEndTime >= process.arrivalTime) {
+      if (previousEndTime && previousEndTime >= arrivalTime) {
         startTime = previousEndTime;
       } else {
-        startTime = process.arrivalTime;
+        startTime = arrivalTime;
       }
 
-      const waitingTime = startTime - process.arrivalTime;
+      previousEndTime = startTime + burstTime;
+      const waitingTime = startTime - arrivalTime;
       waitingData.push(waitingTime);
-
-      runningData.push(process.burstTime);
-      terminatedData.push(1);
-
-      previousEndTime = startTime + process.burstTime;
+      runningData.push(burstTime);
+      endTimes.push(previousEndTime);
     });
+
+    endTimes.forEach(value => {
+      terminatedData.push(previousEndTime - value);
+    })
 
     this.drawChart(labels, arrivalData, waitingData, runningData, terminatedData);
   };
