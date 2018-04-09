@@ -17,3 +17,11 @@ export const CHART_OPTIONS = {
     position: 'right',
   }
 };
+
+export const GOOGLE_CHART_COLUMNS = [
+  { type: 'string', id: 'Process' },
+  { type: 'string', id: 'Stāvoklis' },
+  { type: 'number', id: 'Sākums' },
+  { type: 'number', id: 'Beigas' }
+];
+

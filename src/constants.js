@@ -8,9 +8,9 @@ export const ALGORITHMS = {
 export const MAX_PROCESS_COUNT = 10;
 
 export const STAGES = {
-  ARRIVED: {
-    key: 'arrived',
-    label: 'Arrived',
+  READY: {
+    key: 'ready',
+    label: 'Ready',
     color: 'rgba(255, 255, 255, 0)'
   },
   WAITING: {
