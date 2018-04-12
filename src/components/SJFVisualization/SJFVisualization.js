@@ -30,7 +30,6 @@ class SJFVisualization extends Component {
     let times=0;
 
     while(procCount<length && times < 150 ){
-      console.log(times);
       let ids=0;
       times++;
       let inserted=false;
@@ -62,7 +61,7 @@ class SJFVisualization extends Component {
               result.push([label, STAGES.TERMINATED.label, thisMoment*1000]);
             }
 
-           }else{
+        }else{
              if(arrivalTime<=thisMoment){
                 let ind=ids;
                 let val=burstTime;
@@ -147,7 +146,6 @@ class SJFVisualization extends Component {
       legend_toggle
     />;
     ReactDOM.render(element, document.getElementById('SJF')); 
-  
   };
 
   render() {
