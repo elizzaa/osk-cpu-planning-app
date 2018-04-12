@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import Chart from 'chart.js';
+import { Chart } from 'react-google-charts'
 import { STAGES } from '../../constants';
-import { CHART_OPTIONS } from '../../config';
-
+import { GOOGLE_CHART_COLUMNS } from '../../config';
+import { sortByArrivalTime } from '../../utils/helpers';
+import { sortByBurstTime } from '../../utils/helpers';
+import ReactDOM from 'react-dom';
 class SJFVisualization extends Component {
 
   /**
@@ -10,68 +12,142 @@ class SJFVisualization extends Component {
    */
   initChartData = () => {
     const { processes } = this.props;
+    let processed = [];
+    let result =[];
+  
+    processes.sort(sortByBurstTime);
+    processes.sort(sortByArrivalTime);
 
-    // needed for chart
-    let labels = [];
-    let arrivalData = [];
-    let waitingData = [];
-    let runningData = [];
-    let terminatedData = [];
+    let thisMoment=0;
+    let length=0;
 
     processes.forEach(process => {
-      const label = `P${process.id}`;
-      labels.push(label);
+      processed.push(false);
+      length+=1;  
+    })
 
-      arrivalData.push(process.arrivalTime);
+    let procCount=0;
+    let times=0;
 
-      // TODO: process data for chart here
-    });
+    while(procCount<length && times < 150 ){
+      console.log(times);
+      let ids=0;
+      times++;
+      let inserted=false;
+      processes.forEach(process => {
+        const arrivalTime = parseInt(process.arrivalTime, 10);
+        const burstTime = parseInt(process.burstTime, 10);
+        const label = `P${process.id}`;
+        const waitingTimer=parseInt(process.waitingTime, 10);
+        const processLength=parseInt(process.processLength, 10);
 
-    this.drawChart(labels, arrivalData, waitingData, runningData, terminatedData);
+        if(processed[ids]===false){
+           if(thisMoment===0){
+            thisMoment=arrivalTime+burstTime;
+            result.push([label, STAGES.RUNNING.label, arrivalTime*1000, thisMoment*1000]);
+            processed[ids]=true;
+            procCount++;
+            inserted=true;
+
+            if(waitingTimer>0 && processLength>0){
+              process.arrivalTime=thisMoment+waitingTimer;
+              process.burstTime=processLength;
+              process.waitingTime=thisMoment;
+              process.processLength=0;
+              processed[ids]=false;
+              result.push([label, STAGES.WAITING.label,  thisMoment*1000, (waitingTimer+thisMoment)*1000]);
+              length++;
+            }
+            else{
+              result.push([label, STAGES.TERMINATED.label, thisMoment*1000]);
+            }
+
+           }else{
+             if(arrivalTime<=thisMoment){
+                let ind=ids;
+                let val=burstTime;
+                let rdd=0;
+                let lab=label;
+                let arv=arrivalTime
+                let weT=waitingTimer;
+                let prevT=processLength;
+
+                processes.forEach(process => {
+                  const arrivalT = parseInt(process.arrivalTime, 10);
+                  const burstT = parseInt(process.burstTime, 10);
+                  if(processed[rdd]===false && burstT < val && arrivalT <= thisMoment){
+                    val=burstT;
+                    ind=rdd;
+                    lab= `P${process.id}`;
+                    arv=arrivalT;
+                    prevT=parseInt(process.processLength, 10);
+                    weT=parseInt(process.waitingTime, 10);
+                  }
+                  rdd++;
+                });
+              if(thisMoment-arv!==0){
+                result.push([lab, STAGES.READY.label, arv*1000, thisMoment*1000]);
+              }  
+              result.push([lab, STAGES.RUNNING.label, thisMoment*1000, (thisMoment+burstTime)*1000]);
+              procCount++;
+              inserted=true;
+              processed[ind]=true;
+              thisMoment=thisMoment+burstTime;
+
+              if(weT>0 && prevT>0){
+                result.push([lab, STAGES.WAITING.label,  thisMoment*1000, (thisMoment+weT)*1000]);
+                rdd=0;
+                processes.forEach(process2 => {
+                  if(rdd===ind){
+                    process2.arrivalTime=thisMoment+weT;
+                    process2.burstTime=prevT;
+                    process2.waitingTime=thisMoment;
+                    process2.processLength=0;
+                    processed[ind]=false;
+                    length++;
+                  }
+                  rdd++;
+                });
+              }
+              else{
+                result.push([lab, STAGES.TERMINATED.label, thisMoment*1000]);
+              }
+             }
+           }
+        }
+        ids++;
+      })
+      if (inserted===false){
+        thisMoment++;
+      }
+    }
+     result.forEach(r=>{
+       if(r[1]===STAGES.TERMINATED.label){
+         r.push(thisMoment*1000);
+       }
+     }) 
+    this.drawChart(result);
   };
 
   /**
    * Draw chart based on provided processes & used algorithm
-   * @param labels
-   * @param arrivalData
-   * @param waitingData
-   * @param runningData
-   * @param terminatedData
+   * @param rows
    */
-  drawChart = (labels, arrivalData, waitingData, runningData, terminatedData) => {
-    const data = {
-      labels: labels,
-      datasets: [{
-        label: STAGES.ARRIVED.label,
-        backgroundColor: STAGES.ARRIVED.color,
-        borderColor: STAGES.ARRIVED.color,
-        data: arrivalData
-      }, {
-        label: STAGES.WAITING.label,
-        backgroundColor: STAGES.WAITING.color,
-        borderColor: STAGES.WAITING.color,
-        data: waitingData
-      }, {
-        label: STAGES.RUNNING.label,
-        backgroundColor: STAGES.RUNNING.color,
-        borderColor: STAGES.RUNNING.color,
-        data: runningData
-      }, {
-        label: STAGES.TERMINATED.label,
-        backgroundColor: STAGES.TERMINATED.color,
-        borderColor: STAGES.TERMINATED.color,
-        data: terminatedData
-      }]
-    };
 
-    const ctx = document.getElementById("sjf-chart");
-    const config = {
-      type: 'horizontalBar',
-      data: data,
-      options: CHART_OPTIONS
-    };
+  drawChart = (rows) => {
+    this.columns = GOOGLE_CHART_COLUMNS;
+    this.rows = rows;
 
-    new Chart(ctx, config);
+    const element = <Chart
+      chartType="Timeline"
+      rows={this.rows}
+      columns={this.columns}
+      graph_id="SJFChart"
+      width="100%"
+      legend_toggle
+    />;
+    ReactDOM.render(element, document.getElementById('SJF')); 
+  
   };
 
   render() {
@@ -86,7 +162,7 @@ class SJFVisualization extends Component {
         </div>
 
         <div className="card-body chart">
-          <canvas id="sjf-chart" />
+          <div id="SJF"></div>
         </div>
       </div>
     );
