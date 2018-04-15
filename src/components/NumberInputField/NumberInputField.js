@@ -5,7 +5,8 @@ class NumberInputField extends Component {
     super(props);
 
     this.state = {
-      labelID: ''
+      labelID: '',
+      errorStatus: false
     }
   }
 
@@ -17,22 +18,36 @@ class NumberInputField extends Component {
 
   // https://stackoverflow.com/questions/43067719/how-to-allow-only-numbers-in-textbox-in-reactjs
   onChange = (e) => {
+    const { required } = this.props;
+
     // const regexDecimals = /^\d+(\.\d{1,2})?$/;
     const regexOnlyNumbers = /^\d+$/;
 
     if (e.target.value === '' || regexOnlyNumbers.test(e.target.value)) {
-      this.props.setValue(e.target.value);
+      const value = e.target.value;
+
+      // update displayed value
+      this.props.setValue(value);
+
+      if (required) {
+        // check if valid
+        const errorStatus = (value.length === 0);
+        this.setState({ errorStatus });
+      }
     }
   };
 
   render() {
     const { elemID, label, value, disabled } = this.props;
-    const { labelID } = this.state;
+    const { labelID, errorStatus } = this.state;
 
     return (
-      <div className="input-group input-group-sm col-xl-2 col-lg-4 vertical-space-sm">
+    <div className="col-xl-2 col-lg-4 vertical-space-sm">
+      <div className="input-group input-group-sm">
         <div className="input-group-prepend">
-          <span className="input-group-text" id={labelID}>{label}</span>
+          <span className={"input-group-text " + (errorStatus && "input-error")} id={labelID}>
+            {label}
+          </span>
         </div>
         <input
           type="text"
@@ -44,6 +59,14 @@ class NumberInputField extends Component {
           onChange={this.onChange}
         />
       </div>
+
+      {
+        errorStatus &&
+        <p className="error-msg">
+          {'Lauks ir obligāts'}
+        </p>
+      }
+    </div>
     );
   }
 }

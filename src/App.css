@@ -22,6 +22,10 @@
   font-size: large;
 }
 
+.clear {
+  clear: both;
+}
+
 section.md-vertical-space {
   margin-top: 32px;
   margin-bottom: 32px;
@@ -66,4 +70,21 @@ span.process-id {
 
 div.chart {
   /*min-height: 600px;*/
+}
+
+span.input-error {
+  background-color: #EA4E5D;
+}
+
+p.error-msg {
+  font-weight: bold;
+  font-size: 12px;
+  color: #EA4E5D;
+  margin-bottom: 0;
+  margin-top: 4px;
+}
+
+button.disabled-submit {
+  opacity: 0.1;
+  pointer-events: none;
 }

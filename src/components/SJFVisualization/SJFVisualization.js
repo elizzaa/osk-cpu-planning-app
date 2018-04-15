@@ -143,12 +143,14 @@ class SJFVisualization extends Component {
     ReactDOM.render(element, document.getElementById('SJF')); 
   };
   render() {
+    const { processes } = this.props;
+
     return (
-      <div className="card algorithm vertical-space-sm">
+      <div className="card algorithm vertical-space-md">
         <div className="card-header">
           <h5>Shortest Job First</h5>
-          <button type="button" className="btn btn-outline-primary float-right" onClick={this.initChartData}>
-            Animate
+          <button type="button" className={"btn btn-outline-primary float-right " + (processes.length === 0 && "disabled-submit")} onClick={this.initChartData}>
+            Attēlot
           </button>
         </div>
         <div className="card-body chart">

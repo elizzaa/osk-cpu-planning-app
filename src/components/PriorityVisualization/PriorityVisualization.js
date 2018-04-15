@@ -75,13 +75,15 @@ class PriorityVisualization extends Component {
   };
 
   render() {
+    const { processes } = this.props;
+
     return (
-      <div className="card algorithm vertical-space-sm">
+      <div className="card algorithm vertical-space-md">
         <div className="card-header">
           <h5>Priority</h5>
 
-          <button type="button" className="btn btn-outline-primary float-right" onClick={this.initChartData}>
-            Animate
+          <button type="button" className={"btn btn-outline-primary float-right " + (processes.length === 0 && "disabled-submit")} onClick={this.initChartData}>
+            Attēlot
           </button>
         </div>
 

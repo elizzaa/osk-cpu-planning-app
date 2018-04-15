@@ -5,6 +5,15 @@ export const ALGORITHMS = {
   PRIORITY: 'priority'
 };
 
+export const FORM_FIELDS = {
+  ARRIVAL_TIME: 'arrivalTime',
+  BURST_TIME: 'burstTime',
+  WAITING_TIME: 'waitingTime',
+  PROCESS_LENGTH: 'processLength',
+  PRIORITY: 'priority',
+  QVALUE: 'qValue'
+};
+
 export const MAX_PROCESS_COUNT = 10;
 
 export const STAGES = {
