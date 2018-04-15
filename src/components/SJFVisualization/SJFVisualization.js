@@ -29,7 +29,7 @@ class SJFVisualization extends Component {
     let procCount=0;
     let times=0;
 
-    while(procCount<length && times < 150 ){
+    while(procCount<length && times < 100 ){
       let ids=0;
       times++;
       let inserted=false;
@@ -39,7 +39,6 @@ class SJFVisualization extends Component {
         const label = `P${process.id}`;
         const waitingTimer=parseInt(process.waitingTime, 10);
         const processLength=parseInt(process.processLength, 10);
-
         if(processed[ids]===false){
            if(thisMoment===0){
             thisMoment=arrivalTime+burstTime;
@@ -47,7 +46,6 @@ class SJFVisualization extends Component {
             processed[ids]=true;
             procCount++;
             inserted=true;
-
             if(waitingTimer>0 && processLength>0){
               process.arrivalTime=thisMoment+waitingTimer;
               process.burstTime=processLength;
@@ -60,7 +58,6 @@ class SJFVisualization extends Component {
             else{
               result.push([label, STAGES.TERMINATED.label, thisMoment*1000]);
             }
-
         }else{
              if(arrivalTime<=thisMoment){
                 let ind=ids;
@@ -70,14 +67,13 @@ class SJFVisualization extends Component {
                 let arv=arrivalTime
                 let weT=waitingTimer;
                 let prevT=processLength;
-
                 processes.forEach(process => {
                   const arrivalT = parseInt(process.arrivalTime, 10);
                   const burstT = parseInt(process.burstTime, 10);
                   if(processed[rdd]===false && burstT < val && arrivalT <= thisMoment){
                     val=burstT;
                     ind=rdd;
-                    lab= `P${process.id}`;
+                    lab = `P${process.id}`;
                     arv=arrivalT;
                     prevT=parseInt(process.processLength, 10);
                     weT=parseInt(process.waitingTime, 10);
@@ -87,11 +83,11 @@ class SJFVisualization extends Component {
               if(thisMoment-arv!==0){
                 result.push([lab, STAGES.READY.label, arv*1000, thisMoment*1000]);
               }  
-              result.push([lab, STAGES.RUNNING.label, thisMoment*1000, (thisMoment+burstTime)*1000]);
+              result.push([lab, STAGES.RUNNING.label, thisMoment*1000, (thisMoment+val)*1000]);
               procCount++;
               inserted=true;
               processed[ind]=true;
-              thisMoment=thisMoment+burstTime;
+              thisMoment=thisMoment+val;
 
               if(weT>0 && prevT>0){
                 result.push([lab, STAGES.WAITING.label,  thisMoment*1000, (thisMoment+weT)*1000]);
@@ -136,7 +132,6 @@ class SJFVisualization extends Component {
   drawChart = (rows) => {
     this.columns = GOOGLE_CHART_COLUMNS;
     this.rows = rows;
-
     const element = <Chart
       chartType="Timeline"
       rows={this.rows}
@@ -147,18 +142,15 @@ class SJFVisualization extends Component {
     />;
     ReactDOM.render(element, document.getElementById('SJF')); 
   };
-
   render() {
     return (
       <div className="card algorithm vertical-space-sm">
         <div className="card-header">
           <h5>Shortest Job First</h5>
-
           <button type="button" className="btn btn-outline-primary float-right" onClick={this.initChartData}>
             Animate
           </button>
         </div>
-
         <div className="card-body chart">
           <div id="SJF"></div>
         </div>
