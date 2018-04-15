@@ -47,7 +47,6 @@ class App extends Component {
    */
   useDefaultValues = (type = 'DEFAULT') => {
     const { algorithm } = this.state;
-    console.log(type)
 
     this.setState({
       processes: {
@@ -79,14 +78,18 @@ class App extends Component {
    * Delete existing process
    */
   deleteProcess = (processID) => {
-    let processes = this.state.processes.slice();
+    const { algorithm } = this.state;
+    let processes = this.state.processes[algorithm].slice();
 
     const index = processes.map(process => process.id).indexOf(processID);
     processes.splice(index, 1);
 
     this.setState({
-      processes
-    })
+      processes: {
+        ...this.state.processes,
+        [algorithm]: processes
+      },
+    });
   };
 
   render() {
