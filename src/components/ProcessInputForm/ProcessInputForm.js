@@ -37,7 +37,7 @@ class ProcessInputForm extends Component {
     const { processes } = this.props;
 
     const process = {
-      id: processes[processes.length - 1].id + 1,
+      id: (processes.length > 0) ? processes[processes.length - 1].id + 1 : 1,
       arrivalTime,
       burstTime,
       waitingTime,
