@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { Chart } from 'react-google-charts';
 import { STAGES } from '../../constants';
 import { GOOGLE_CHART_COLUMNS } from '../../config';
-import { sortByArrivalTimeAsc } from '../../utils/helpers';
-import { sortByPriority } from '../../utils/helpers';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 
@@ -37,18 +35,26 @@ parseValueToInt = (value) => {
       }
     })
 
-    prcs.sort(sortByPriority);
-    prcs.sort(sortByArrivalTimeAsc);
-
-    prcs.sort(function (x, y) { return x.arrivalTime - y.arrivalTime || x.Priority - y.Priority; });
- 
-    prcs.forEach(p => {
-
-      console.log(p.arrivalTime + " " + p.Priority);
-    });
-    
-
     while (prcs.length > 0 && times < 200) {
+
+        prcs.sort(function(x,y){
+          var keyA1 = parseInt(x.arrivalTime), 
+          keyA2 = parseInt(x.priority),
+          keyB1 = parseInt(y.arrivalTime),
+          keyB2 = parseInt(y.priority)
+
+
+          if(keyA1 < keyB1) return -1;
+          else if(keyA1 > keyB1) return 1;
+          {
+              if(keyA2 < keyB2) return -1;
+              if(keyA2 > keyB2) return 1;
+              return 0;
+          }
+          
+        })
+
+
       const process = prcs[0];
       const label = `P${process.id}`;
       let startTime;
@@ -86,9 +92,7 @@ parseValueToInt = (value) => {
       }
 
       previousEndTime = endTime;
-      //prcs.sort(sortByArrivalTimeAsc);
-      //prcs.sort(sortByPriority);
-      prcs.sort(function (x, y) { return x.arrivalTime - y.arrivalTime || x.Priority - y.Priority; });
+
     }
 
     result.forEach(r => {
@@ -96,7 +100,7 @@ parseValueToInt = (value) => {
         r.push(previousEndTime);
       }
     })
-    console.log(result);
+
     this.drawChart(result);
   };
       /**
