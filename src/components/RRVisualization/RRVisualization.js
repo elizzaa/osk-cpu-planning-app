@@ -44,15 +44,17 @@ class RRVisualization extends Component {
       const label = `P${process.id}`;
       let startTime;
       let endTime;
-      
       times++;
-
       if (previousEndTime != null && previousEndTime > process.arrivalTime) {
         startTime = previousEndTime;
         result.push([label, STAGES.READY.label, process.arrivalTime, startTime])
       } else {
+        if (qValue == null){
+          qValue = process.qValue;
+        }
+       
         startTime = process.arrivalTime;
-        qValue = process.qValue;
+        
       }
       if (qValue > 0){
         if (process.burstTime < qValue && process.burstTime > 0){
@@ -61,7 +63,6 @@ class RRVisualization extends Component {
         else{
           endTime = startTime + qValue;}
         process.burstTime = process.burstTime - qValue;
-        
       }
       else
         endTime = startTime + process.burstTime;
@@ -78,21 +79,13 @@ class RRVisualization extends Component {
           process.burstTime = process.processLength;
           process.waitingTime = -1;}
         else {
-          if (process.waitingTime != null && process.waitingTime > 0) {
-            result.push([label, STAGES.RUNNING.label, startTime, endTime]);
-            result.push([label, STAGES.WAITING.label, endTime, endTime + process.waitingTime]);
-            process.arrivalTime = endTime + process.waitingTime;
-            process.burstTime = process.processLength;
-            process.waitingTime = -1;}
-          else {
           result.push([label, STAGES.RUNNING.label, startTime, endTime]);
           result.push([label, STAGES.TERMINATED.label, endTime]);
-          prcs.shift();}
+          prcs.shift();
         } 
         previousEndTime = endTime;
         prcs.sort(sortByArrivalTimeAsc);
       }
-  
       result.forEach(r => {
         if (r[1] === STAGES.TERMINATED.label) {
           r.push(previousEndTime);

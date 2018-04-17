@@ -52,7 +52,7 @@ class ProcessInputForm extends Component {
       waitingTime: '',
       processLength: '',
       priority: '',
-      qValue: '',
+      qValue: process.qValue,
       error: true
     });
 
