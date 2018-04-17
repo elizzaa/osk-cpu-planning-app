@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Chart } from 'react-google-charts';
 import { STAGES } from '../../constants';
 import { GOOGLE_CHART_COLUMNS } from '../../config';
-import { sortByArrivalTimeDesc } from '../../utils/helpers';
+import { sortByArrivalTimeAsc } from '../../utils/helpers';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 
@@ -24,15 +24,12 @@ class FCFSVisualization extends Component {
   initChartData = () => {
     const { processes } = this.props;
     const prcs = $.extend(true, [], processes);
-    this.data = {};
 
     // needed for chart
-    let result = [];
+    const result = [];
 
     let previousEndTime;
-    let end = false;
-
-    prcs.sort(sortByArrivalTimeDesc);
+    let times = 0;
 
     prcs.forEach(process => {
       for (let p in process) {
@@ -42,11 +39,14 @@ class FCFSVisualization extends Component {
       }
     })
 
-    while (!end) {
-      let process = prcs[prcs.length - 1];
+    prcs.sort(sortByArrivalTimeAsc);
+
+    while (prcs.length > 0 && times < 200) {
+      const process = prcs[0];
       const label = `P${process.id}`;
       let startTime;
       let endTime;
+      times++;
 
       if (previousEndTime != null && previousEndTime > process.arrivalTime) {
         startTime = previousEndTime;
@@ -54,25 +54,32 @@ class FCFSVisualization extends Component {
       } else {
         startTime = process.arrivalTime;
       }
+
       endTime = startTime + process.burstTime;
       //takes process who is first in the line
       if (process.waitingTime != null && process.waitingTime > 0) {
         result.push([label, STAGES.RUNNING.label, startTime, endTime]);
         result.push([label, STAGES.WAITING.label, endTime, endTime + process.waitingTime]);
-        process.arrivalTime = endTime + process.waitingTime;
-        process.burstTime = process.processLength;
-        process.waitingTime = -1;
+        if (process.processLength != null && process.processLength > 0) {
+          process.arrivalTime = endTime + process.waitingTime;
+          process.burstTime = process.processLength;
+          process.waitingTime = -1;
+        } else {
+          endTime += process.waitingTime;
+          result.push([label, STAGES.TERMINATED.label, endTime]);
+          prcs.shift();
+        }
       } else {
+        if (process.processLength != null && process.processLength > 0) {
+          endTime += process.processLength;
+        }
         result.push([label, STAGES.RUNNING.label, startTime, endTime]);
         result.push([label, STAGES.TERMINATED.label, endTime]);
-        prcs.pop();
+        prcs.shift();
       }
 
       previousEndTime = endTime;
-      prcs.sort(sortByArrivalTimeDesc);
-      if (prcs.length === 0) {
-        end = true;
-      }
+      prcs.sort(sortByArrivalTimeAsc);
     }
 
     result.forEach(r => {
@@ -80,7 +87,7 @@ class FCFSVisualization extends Component {
         r.push(previousEndTime);
       }
     })
-
+    console.log(result);
     this.drawChart(result);
   };
 
