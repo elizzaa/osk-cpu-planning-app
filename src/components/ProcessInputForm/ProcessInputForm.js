@@ -162,7 +162,7 @@ class ProcessInputForm extends Component {
               value={qValue}
               elemID={'q-value'}
               label={'q'}
-              disabled={algorithm !== ALGORITHMS.RR}
+              disabled={algorithm !== ALGORITHMS.RR || processes.length !==0}
               setValue={this.setQValue}
               setFormError={this.setError}
               required={this.isRequired(FORM_FIELDS.QVALUE)}

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Chart } from 'react-google-charts';
 import { STAGES } from '../../constants';
 import { GOOGLE_CHART_COLUMNS } from '../../config';
-import { sortByArrivalTimeDesc } from '../../utils/helpers';
+import { sortByArrivalTimeAsc } from '../../utils/helpers';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 
@@ -21,15 +21,13 @@ class RRVisualization extends Component {
   initChartData = () => {
     const { processes } = this.props;
     const prcs = $.extend(true, [], processes);
-    this.data = {};
 
     // needed for chart
     let result = [];
-    let allEndTime;
     let previousEndTime;
-    let end = false;
+    let times = 0;
 
-    prcs.sort(sortByArrivalTimeDesc);
+    
 
     prcs.forEach(process => {
       for (let p in process) {
@@ -39,47 +37,46 @@ class RRVisualization extends Component {
         }
       }
     })
-    while (!end) {
-      let process = prcs[prcs.length - 1];
+    let qValue;
+    prcs.sort(sortByArrivalTimeAsc);
+    while (prcs.length > 0 && times < 200) {
+      const process = prcs[0];
       const label = `P${process.id}`;
       let startTime;
       let endTime;
+      
+      times++;
 
       if (previousEndTime != null && previousEndTime > process.arrivalTime) {
         startTime = previousEndTime;
         result.push([label, STAGES.READY.label, process.arrivalTime, startTime])
       } else {
         startTime = process.arrivalTime;
+        qValue = process.qValue;
       }
-      if (process.qValue > 0){
-        if (process.burstTime < process.qValue && process.burstTime > 0){
+      if (qValue > 0){
+        if (process.burstTime < qValue && process.burstTime > 0){
           endTime = startTime + process.burstTime;
         }
         else{
-          endTime = startTime + process.qValue;}
-        process.burstTime = process.burstTime - process.qValue;
-        if (process.burstTime < process.qValue && process.burstTime > 0)
-        {
-          process.burstTime = process.qValue;
-        }
+          endTime = startTime + qValue;}
+        process.burstTime = process.burstTime - qValue;
+        
       }
       else
         endTime = startTime + process.burstTime;
       //takes process who is first in the line
-        if ( process.burstTime > 0 && process.qValue > 0 )
+        if ( process.burstTime > 0 && qValue > 0 )
         {
-          if (process.waitingTime != null && process.waitingTime > 0) {
-            result.push([label, STAGES.RUNNING.label, startTime, endTime]);
-            result.push([label, STAGES.WAITING.label, endTime, endTime + process.waitingTime]);
-            process.arrivalTime = endTime + process.waitingTime;
-            process.burstTime = process.processLength;
-            process.waitingTime = -1;}
-          else{
           result.push([label, STAGES.RUNNING.label, startTime, endTime]);
           process.arrivalTime = endTime;
-          
-          }
         }
+        else if (process.waitingTime != null && process.waitingTime > 0) {
+          result.push([label, STAGES.RUNNING.label, startTime, endTime]);
+          result.push([label, STAGES.WAITING.label, endTime, endTime + process.waitingTime]);
+          process.arrivalTime = endTime + process.waitingTime;
+          process.burstTime = process.processLength;
+          process.waitingTime = -1;}
         else {
           if (process.waitingTime != null && process.waitingTime > 0) {
             result.push([label, STAGES.RUNNING.label, startTime, endTime]);
@@ -90,23 +87,21 @@ class RRVisualization extends Component {
           else {
           result.push([label, STAGES.RUNNING.label, startTime, endTime]);
           result.push([label, STAGES.TERMINATED.label, endTime]);
-          prcs.pop();}
+          prcs.shift();}
         } 
-      previousEndTime = endTime;
-      prcs.sort(sortByArrivalTimeDesc);
-      if (prcs.length === 0) {
-        end = true;
+        previousEndTime = endTime;
+        prcs.sort(sortByArrivalTimeAsc);
       }
-    }
-
-    result.forEach(r => {
-      if (r[1] === STAGES.TERMINATED.label) {
-        r.push(previousEndTime);
-      }
-    })
-
-    this.drawChart(result);
-  };
+  
+      result.forEach(r => {
+        if (r[1] === STAGES.TERMINATED.label) {
+          r.push(previousEndTime);
+        }
+      })
+      
+      this.drawChart(result);
+    };
+  
 
   /**
    * Draw chart based on provided processes & used algorithm
