@@ -5,6 +5,7 @@ import { GOOGLE_CHART_COLUMNS } from '../../config';
 import { sortByArrivalTime } from '../../utils/helpers';
 import { sortByBurstTime } from '../../utils/helpers';
 import ReactDOM from 'react-dom';
+import $ from 'jquery';
 class SJFVisualization extends Component {
 
   /**
@@ -12,16 +13,18 @@ class SJFVisualization extends Component {
    */
   initChartData = () => {
     const { processes } = this.props;
+    const prcs = $.extend(true, [], processes);
+
     let processed = [];
     let result =[];
   
-    processes.sort(sortByBurstTime);
-    processes.sort(sortByArrivalTime);
+    prcs.sort(sortByBurstTime);
+    prcs.sort(sortByArrivalTime);
 
     let thisMoment=0;
     let length=0;
 
-    processes.forEach(process => {
+    prcs.forEach(process => {
       processed.push(false);
       length+=1;  
     })
@@ -33,7 +36,7 @@ class SJFVisualization extends Component {
       let ids=0;
       times++;
       let inserted=false;
-      processes.forEach(process => {
+      prcs.forEach(process => {
         const arrivalTime = parseInt(process.arrivalTime, 10);
         const burstTime = parseInt(process.burstTime, 10);
         const label = `P${process.id}`;
@@ -67,7 +70,7 @@ class SJFVisualization extends Component {
                 let arv=arrivalTime
                 let weT=waitingTimer;
                 let prevT=processLength;
-                processes.forEach(process => {
+                prcs.forEach(process => {
                   const arrivalT = parseInt(process.arrivalTime, 10);
                   const burstT = parseInt(process.burstTime, 10);
                   if(processed[rdd]===false && burstT < val && arrivalT <= thisMoment){
@@ -92,7 +95,7 @@ class SJFVisualization extends Component {
               if(weT>0 && prevT>0){
                 result.push([lab, STAGES.WAITING.label,  thisMoment*1000, (thisMoment+weT)*1000]);
                 rdd=0;
-                processes.forEach(process2 => {
+                prcs.forEach(process2 => {
                   if(rdd===ind){
                     process2.arrivalTime=thisMoment+weT;
                     process2.burstTime=prevT;
