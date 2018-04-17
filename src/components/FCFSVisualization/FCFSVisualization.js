@@ -64,9 +64,12 @@ class FCFSVisualization extends Component {
           process.arrivalTime = endTime + process.waitingTime;
           process.burstTime = process.processLength;
           process.waitingTime = -1;
+          process.processLength = -1;
         } else {
-          endTime += process.waitingTime;
-          result.push([label, STAGES.TERMINATED.label, endTime]);
+          result.push([label, STAGES.TERMINATED.label, endTime + process.waitingTime]);
+          if (prcs.length === 1) {
+            endTime += process.waitingTime;
+          }
           prcs.shift();
         }
       } else {
