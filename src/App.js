@@ -99,7 +99,7 @@ class App extends Component {
       <div className="App">
         <div className="container-fluid">
           <div className="jumbotron custom-jumbo">
-            <h1 className="display-4">CPU plānošanas vizualizācija dažādiem plānošanas algoritmiem</h1>
+            <h1 className="display-4">CPU plānošanas algoritmu vizualizācija</h1>
           </div>
 
           {/*planing algorithms*/}
