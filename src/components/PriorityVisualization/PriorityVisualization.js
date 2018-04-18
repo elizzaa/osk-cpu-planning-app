@@ -38,15 +38,15 @@ parseValueToInt = (value) => {
     while (prcs.length > 0 && times < 200) {
 
         prcs.sort(function(x,y){
-          var keyA1 = parseInt(x.arrivalTime), 
-          keyA2 = parseInt(x.priority),
-          keyB1 = parseInt(y.arrivalTime),
-          keyB2 = parseInt(y.priority)
+          var keyA1 = parseInt(x.arrivalTime,10), 
+          keyA2 = parseInt(x.priority,10),
+          keyB1 = parseInt(y.arrivalTime,10),
+          keyB2 = parseInt(y.priority,10)
 
 
           if(keyA1 < keyB1) return -1;
           else if(keyA1 > keyB1) return 1;
-          {
+          else{
               if(keyA2 < keyB2) return -1;
               if(keyA2 > keyB2) return 1;
               return 0;
